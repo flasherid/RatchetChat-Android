@@ -21,6 +21,8 @@ public class ApiClient {
     private static final String BASE_URL = "http://chat.twerkwithfriends.com/0.1/";
     private static String SESSION = null;
 
+    public static String userId;
+
     private static AsyncHttpClient client = new AsyncHttpClient();
 
     public static void login(String username, String password, loginHandler isDone) {
@@ -38,6 +40,7 @@ public class ApiClient {
                 try {
                     Log.v("API", "Login success");
                     SESSION = response.getString("key");
+                    userId = response.getString("userid");
                 }
                 catch (Exception e) {
                     Log.v("API", "Fetching key failed.");

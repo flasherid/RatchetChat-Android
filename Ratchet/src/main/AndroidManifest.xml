@@ -20,6 +20,11 @@
             android:name="com.scotttherobot.ratchet.ThreadListActivity"
             android:label="@string/title_activity_thread_list" >
         </activity>
+        <activity
+            android:name="com.scotttherobot.ratchet.MessageThreadActivity"
+            android:label="@string/title_activity_message_thread"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

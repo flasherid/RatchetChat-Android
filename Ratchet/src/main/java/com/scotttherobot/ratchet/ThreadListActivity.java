@@ -3,6 +3,7 @@ package com.scotttherobot.ratchet;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -77,7 +78,10 @@ public class ThreadListActivity extends Activity {
                     list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                            Toast.makeText(ThreadListActivity.this, threadList.get(+position).get("id").toString(), Toast.LENGTH_SHORT).show();
+                            Intent messageThreadIntent = new Intent(getApplicationContext(), MessageThreadActivity.class);
+                            messageThreadIntent.putExtra("threadid", threadList.get(+position).get("id"));
+                            messageThreadIntent.putExtra("threadname", threadList.get(+position).get("name"));
+                            startActivity(messageThreadIntent);
                         }
                     });
                 } catch (Exception e) {
