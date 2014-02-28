@@ -19,5 +19,7 @@ android {
 }
 
 dependencies {
+    compile 'com.android.support:support-v4:19.0.1'
     compile files('libs/android-async-http-1.4.4.jar')
+    compile files('libs/google-play-services.jar')
 }

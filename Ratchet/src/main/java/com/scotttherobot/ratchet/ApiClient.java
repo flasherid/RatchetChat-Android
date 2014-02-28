@@ -2,6 +2,7 @@ package com.scotttherobot.ratchet;
 
 import android.util.Log;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.loopj.android.http.*;
 
 import org.json.JSONArray;
