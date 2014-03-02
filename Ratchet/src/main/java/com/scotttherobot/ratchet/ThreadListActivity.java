@@ -43,6 +43,7 @@ public class ThreadListActivity extends Activity {
                     .commit();
         }
         setTitle("Messages");
+        ApiClient.setContext(getApplicationContext());
         getThreadData();
     }
 
@@ -87,6 +88,7 @@ public class ThreadListActivity extends Activity {
                             Intent messageThreadIntent = new Intent(getApplicationContext(), MessageThreadActivity.class);
                             messageThreadIntent.putExtra("threadid", threadList.get(+position).get("id"));
                             messageThreadIntent.putExtra("threadname", threadList.get(+position).get("name"));
+                            messageThreadIntent.putExtra("autologin", "");
                             startActivity(messageThreadIntent);
                         }
                     });
@@ -114,6 +116,10 @@ public class ThreadListActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.refreshButton:
                 getThreadData();
+                return true;
+            case R.id.logoutButton:
+                ApiClient.clearCredentials();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

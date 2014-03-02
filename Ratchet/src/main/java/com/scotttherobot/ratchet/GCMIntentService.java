@@ -87,8 +87,10 @@ public class GcmIntentService extends IntentService {
         Intent threadIntent = new Intent(this, MessageThreadActivity.class);
         threadIntent.setAction(Intent.ACTION_MAIN);
         threadIntent.setAction(Intent.CATEGORY_LAUNCHER);
+        threadIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         threadIntent.putExtra("threadid", threadid);
         threadIntent.putExtra("threadname", threadname);
+
         broadcastIntent.putExtra("threadid", threadid);
         broadcastIntent.putExtra("threadname", threadname);
 
@@ -106,6 +108,7 @@ public class GcmIntentService extends IntentService {
                             .setContentText(msg);
 
             mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+            mBuilder.setAutoCancel(true);
 
             mBuilder.setContentIntent(contentIntent);
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

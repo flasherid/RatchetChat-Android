@@ -2,8 +2,10 @@ package com.scotttherobot.ratchet;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -27,6 +29,10 @@ public class ApiClient {
     private static String SESSION = null;
 
     public static String userId;
+    public static String globalUsername;
+    private static String globalPassword;
+
+    public static Context appContext;
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
@@ -38,6 +44,9 @@ public class ApiClient {
         p.put("username", username);
         p.put("password", password);
 
+        globalUsername = username;
+        globalPassword = password;
+
         post("login", p, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONObject response) {
@@ -46,6 +55,7 @@ public class ApiClient {
                     Log.v("API", "Login success: " + response.toString());
                     SESSION = response.getString("key");
                     userId = response.getString("userid");
+                    saveCredentials();
                 } catch (Exception e) {
                     Log.v("API", "Fetching key failed.");
                     SESSION = null;
@@ -62,7 +72,6 @@ public class ApiClient {
     }
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        // TODO: Set the session key in the http header
         client.addHeader("cards-key", SESSION);
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
@@ -74,6 +83,37 @@ public class ApiClient {
 
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
+    }
+
+    public static void setContext(Context c) {
+        appContext = c;
+    }
+
+    public static void saveCredentials () {
+        SharedPreferences pref = appContext.getSharedPreferences("chatapi", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("session", SESSION);
+        editor.putString("username", globalUsername);
+        editor.putString("userid", userId);
+        editor.putString("password", globalPassword);
+        editor.commit();
+        Log.v("API", "saved saved credentials for " + globalUsername);
+    }
+
+    public static void clearCredentials() {
+        SharedPreferences pref = appContext.getSharedPreferences("chatapi", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
+    }
+    public static Boolean getCredentials () {
+        Log.v("API", "Getting saved creds");
+        SharedPreferences pref = appContext.getSharedPreferences("chatapi", Context.MODE_PRIVATE);
+        SESSION = pref.getString("session", null);
+        globalUsername = pref.getString("username", null);
+        globalPassword = pref.getString("password", null);
+        userId = pref.getString("userid", null);
+        return userId != null && globalPassword != null && globalUsername != null && SESSION != null;
     }
 
 }

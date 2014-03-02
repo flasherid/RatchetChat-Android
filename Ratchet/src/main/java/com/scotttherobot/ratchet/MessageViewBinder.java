@@ -2,6 +2,9 @@ package com.scotttherobot.ratchet;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
@@ -16,10 +19,22 @@ class MessageViewBinder implements SimpleAdapter.ViewBinder {
         String data = (String)inputData;
         switch (id) {
             case R.id.leftImage:
-                ((ImageView) view.findViewById(id)).setImageResource(Integer.parseInt(data));
+                Integer leftId = Integer.parseInt(data);
+                ImageView leftBox = (ImageView) view.findViewById(id);
+                if (leftId == 0) {
+                    leftBox.getLayoutParams().width = 0;
+                } else {
+                    leftBox.setImageResource(leftId);
+                }
                 break;
             case R.id.rightImage:
-                ((ImageView) view.findViewById(id)).setImageResource(Integer.parseInt(data));
+                Integer rightId = Integer.parseInt(data);
+                ImageView rightBox = (ImageView) view.findViewById(id);
+                if (rightId == 0) {
+                    rightBox.getLayoutParams().width = 0;
+                } else {
+                    rightBox.setImageResource(rightId);
+                }
                 break;
             case R.id.messageBody:
                 ((TextView)view.findViewById(id)).setText(data);

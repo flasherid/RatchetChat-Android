@@ -49,6 +49,9 @@ public class LoginActivity extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+        ApiClient.setContext(getApplicationContext());
+        if (ApiClient.getCredentials())
+            gotoThreads();
     }
 
 
@@ -86,9 +89,7 @@ public class LoginActivity extends Activity {
                 ((TextView)findViewById(R.id.sessionLabel)).setText("Login Successful");
                 registerForPushNotifications();
                 progress.dismiss();
-                Intent threadIntent = new Intent(getApplicationContext(), ThreadListActivity.class);
-                startActivity(threadIntent);
-                finish();
+                gotoThreads();
             }
             @Override
             public void onFailure(JSONObject response) {
@@ -96,6 +97,12 @@ public class LoginActivity extends Activity {
             }
         });
 
+    }
+
+    public void gotoThreads() {
+        Intent threadIntent = new Intent(getApplicationContext(), ThreadListActivity.class);
+        startActivity(threadIntent);
+        finish();
     }
 
     /**

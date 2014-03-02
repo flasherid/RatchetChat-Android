@@ -60,7 +60,7 @@ public class MessageThreadActivity extends Activity {
                     .commit();
         }
 
-        //broadcastIntent = new Intent(this, GcmIntentService.class);
+
         registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
 
         Intent thisIntent = getIntent();
@@ -68,16 +68,21 @@ public class MessageThreadActivity extends Activity {
         threadName = thisIntent.getStringExtra("threadname");
         messageList = new ArrayList<HashMap<String, String>>();
 
-        cacheFile = "thread_" + threadId + ".dat";
+        cacheFile = "thread_" + ApiClient.userId + "_" + threadId + ".dat";
 
         setTitle(threadName);
 
+        ApiClient.setContext(getApplicationContext());
+        ApiClient.getCredentials();
+
         restoreData();
+        Log.v("THREAD", "Data objects restored...");
 
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setTitle("Getting messages.");
         progress.setMessage("Hold, please.");
         progress.show();
+        Log.v("THREAD", "Fetching new stuff.");
         getThreadData();
         progress.dismiss();
 
@@ -94,6 +99,12 @@ public class MessageThreadActivity extends Activity {
     public void onResume() {
         super.onResume();
         registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        finish();
     }
 
     public void restoreData() {
@@ -199,7 +210,7 @@ public class MessageThreadActivity extends Activity {
                     persistData();
 
                 } catch (Exception e) {
-                    Log.e("LIST", "Error retrieving threads from response.");
+                    Log.e("LIST", "Error retrieving messages from response.");
                 }
             }
         });
