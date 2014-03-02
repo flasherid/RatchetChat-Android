@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -45,7 +46,7 @@ public class MessageThreadActivity extends Activity {
     String threadId;
     String threadName;
     String cacheFile;
-    ArrayList<HashMap<String, String>> messageList = new ArrayList<HashMap<String, String>>();
+    ArrayList<HashMap<String, Object>> messageList = new ArrayList<HashMap<String, Object>>();
     ListView list;
     private Intent broadcastIntent;
 
@@ -66,7 +67,7 @@ public class MessageThreadActivity extends Activity {
         Intent thisIntent = getIntent();
         threadId = thisIntent.getStringExtra("threadid");
         threadName = thisIntent.getStringExtra("threadname");
-        messageList = new ArrayList<HashMap<String, String>>();
+        messageList = new ArrayList<HashMap<String, Object>>();
 
         cacheFile = "thread_" + ApiClient.userId + "_" + threadId + ".dat";
 
@@ -76,6 +77,8 @@ public class MessageThreadActivity extends Activity {
         ApiClient.getCredentials();
 
         restoreData();
+        //addDataToList();
+
         Log.v("THREAD", "Data objects restored...");
 
         final ProgressDialog progress = new ProgressDialog(this);
@@ -165,19 +168,23 @@ public class MessageThreadActivity extends Activity {
                         try {
                             JSONObject message = messages.getJSONObject(i);
                             //Log.d("THREAD", "message: " + message.toString());
-                            HashMap<String, String> map = new HashMap<String, String>();
+                            HashMap<String, Object> map = new HashMap<String, Object>();
 
                             String userid = message.get("userid").toString();
 
+                            ArrayList<String> cellData = new ArrayList<String>();
                             if (userid.compareTo(ApiClient.userId) == 0) {
                                 map.put("rightimage", ((Integer)(R.drawable.chat)).toString());
                                 map.put("leftimage", "0");
+                                cellData.add(0, "right");
                             } else {
                                 map.put("leftimage", ((Integer)(R.drawable.chat)).toString());
                                 map.put("rightimage", "0");
+                                cellData.add(0, "left");
                             }
+                            cellData.add(1, message.get("body").toString());
 
-                            map.put("body", message.get("body").toString());
+                            map.put("body", cellData);
                             map.put("userid", userid);
                             map.put("sent", message.get("sent").toString());
                             map.put("username", message.get("username").toString());
@@ -187,26 +194,8 @@ public class MessageThreadActivity extends Activity {
                         }
                     }
 
-                    // Assign the data to the list.
-                    list = (ListView)findViewById(R.id.messageList);
+                    addDataToList();
 
-                    SimpleAdapter sa = new SimpleAdapter(getApplicationContext(),
-                            messageList, R.layout.messagelist_item,
-                            new String[] {"leftimage", "body", "rightimage"},
-                            new int[] {R.id.leftImage, R.id.messageBody, R.id.rightImage});
-                    sa.setViewBinder(new MessageViewBinder());
-
-                    ListAdapter adapter = sa;
-
-                    list.setAdapter(adapter);
-                    list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
-                        }
-                    });
-
-                    list.setSelection(adapter.getCount() - 1);
                     persistData();
 
                 } catch (Exception e) {
@@ -214,6 +203,29 @@ public class MessageThreadActivity extends Activity {
                 }
             }
         });
+    }
+
+    public void addDataToList() {
+        // Assign the data to the list.
+        list = (ListView)findViewById(R.id.messageList);
+
+        SimpleAdapter sa = new SimpleAdapter(getApplicationContext(),
+                messageList, R.layout.messagelist_item,
+                new String[] {"leftimage", "body", "rightimage"},
+                new int[] {R.id.leftImage, R.id.messageBody, R.id.rightImage});
+        sa.setViewBinder(new MessageViewBinder());
+
+        ListAdapter adapter = sa;
+
+        list.setAdapter(adapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+            }
+        });
+
+        list.setSelection(adapter.getCount() - 1);
     }
 
     public void sendMessage(View v) {

@@ -2,22 +2,24 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="wrap_content"
     android:weightSum="1"
-    android:gravity="center">
-
+    android:gravity="center"
+    android:background="#FFFFFF"
+    android:layout_marginTop="5dp" >
 
     <ImageView
         android:id="@+id/leftImage"
         android:layout_marginLeft="15dp"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
+        android:layout_width="75dp"
+        android:layout_height="75dp" />
 
     <TextView
         android:id="@+id/messageBody"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="0.81"
+        android:padding="5dp"
         android:gravity="center_vertical"
         android:textSize="15sp"
         />
@@ -25,7 +27,7 @@
     <ImageView
         android:id="@+id/rightImage"
         android:layout_marginRight="15dp"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
+        android:layout_width="75dp"
+        android:layout_height="75dp" />
 
 </LinearLayout>
