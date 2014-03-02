@@ -7,7 +7,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-
         <activity
             android:name="com.scotttherobot.ratchet.LoginActivity"
             android:label="@string/app_name" >
@@ -24,18 +23,25 @@
         <activity
             android:name="com.scotttherobot.ratchet.MessageThreadActivity"
             android:label="@string/title_activity_message_thread"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
         </activity>
 
         <receiver
-            android:name=".GcmBroadcastReceiver"
+            android:name="com.scotttherobot.ratchet.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.scotttherobot.gcm" />
             </intent-filter>
         </receiver>
-        <service android:name=".GcmIntentService" />
+
+        <service android:name="com.scotttherobot.ratchet.GcmIntentService" />
+
+        <activity
+            android:name="com.scotttherobot.ratchet.CreateThreadActivity"
+            android:label="@string/title_activity_create_thread" >
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -47,8 +53,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <permission android:name="com.scotttherobot.gcm.permission.C2D_MESSAGE"
+    <permission
+        android:name="com.scotttherobot.gcm.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+
     <uses-permission android:name="com.example.gcm.permission.C2D_MESSAGE" />
 
 </manifest>

@@ -47,6 +47,13 @@ public class ThreadListActivity extends Activity {
         getThreadData();
     }
 
+    /*
+    @Override
+    protected void onResume() {
+       // getThreadData();
+    }
+    */
+
     public void getThreadData() {
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setTitle("Getting threads.");
@@ -120,6 +127,10 @@ public class ThreadListActivity extends Activity {
             case R.id.logoutButton:
                 ApiClient.clearCredentials();
                 finish();
+                return true;
+            case R.id.newThreadButton:
+                Intent i = new Intent(getApplicationContext(), CreateThreadActivity.class);
+                startActivity(i);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
