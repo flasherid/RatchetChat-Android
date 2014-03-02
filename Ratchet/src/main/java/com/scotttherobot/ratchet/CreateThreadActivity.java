@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +42,13 @@ public class CreateThreadActivity extends Activity {
         String title = ((EditText)findViewById(R.id.threadName)).getText().toString();
         String user = ((EditText)findViewById(R.id.userName)).getText().toString();
 
+        Log.e("THREAD", "Creating thread " + title + " " + user);
+
+        if (title.isEmpty() || user.isEmpty()) {
+            showAlert("Error!", "You must set a title and specify a user.");
+            return;
+        }
+
         RequestParams p = new RequestParams();
         p.add("name", title);
         p.add("user", user);
@@ -54,9 +62,10 @@ public class CreateThreadActivity extends Activity {
             public void onSuccess(JSONObject response) {
                 try {
                     progress.dismiss();
-                    String status = response.getString("status");
-                    if (status.compareTo("success") != 0) {
+                    Log.e("NEW", response.toString());
+                    if (response.getJSONArray("errors").length() != 0) {
                         // There was an error! Throw an alert.
+                        showAlert("Error", response.getJSONArray("errors").getString(0));
                     } else {
                         finish();
                     }
@@ -69,6 +78,20 @@ public class CreateThreadActivity extends Activity {
             }
 
         });
+    }
+
+    public void showAlert(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
+               .setTitle(title)
+               .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialogInterface, int i) {
+                       dialogInterface.dismiss();
+                   }
+               });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override

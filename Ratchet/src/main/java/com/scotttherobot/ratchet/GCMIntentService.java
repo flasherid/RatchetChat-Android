@@ -54,7 +54,7 @@ public class GcmIntentService extends IntentService {
                 Log.i("GCMINTENT", "Received: " + extras.toString());
                 try {
                     String message = extras.getString("message");
-                    String threadid = extras.getString("threadid");
+                    int threadid = Integer.parseInt(extras.getString("threadid"));
                     String threadname = extras.getString("threadname");
                     sendNotification(message, threadid, threadname);
                 } catch (Exception e) {
@@ -69,7 +69,7 @@ public class GcmIntentService extends IntentService {
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg, String threadid, String threadname) {
+    private void sendNotification(String msg, int threadid, String threadname) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 

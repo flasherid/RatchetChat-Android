@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,7 +32,7 @@ import java.util.HashMap;
 
 public class ThreadListActivity extends Activity {
 
-    ArrayList<HashMap<String, String>> threadList = new ArrayList<HashMap<String, String>>();
+    ArrayList<Thread> threadList = new ArrayList<Thread>();
     ListView list;
 
     @Override
@@ -43,9 +46,34 @@ public class ThreadListActivity extends Activity {
                     .commit();
         }
         setTitle("Messages");
+        threadList = new ArrayList<Thread>();
+
+        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
+
         ApiClient.setContext(getApplicationContext());
         getThreadData();
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // persistData();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
+        getThreadData();
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v("THREAD", "Received broadcast.");
+        }
+    };
 
     /*
     @Override
@@ -60,49 +88,38 @@ public class ThreadListActivity extends Activity {
         progress.setMessage("Hold, please.");
         progress.show();
 
-        threadList = new ArrayList<HashMap<String, String>>();
         ApiClient.get("threads/", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONObject response) {
                 //Log.d("LIST", "Response: " + response.toString());
                 try {
                     JSONArray tests = response.getJSONArray("threads");
-                    // We need to convert the JSONArray to
-                    // a HashMap so we can use it to fill the ListView.
-                    for (int i = 0; i < tests.length(); i++) {
-                        try {
-                            JSONObject thread = tests.getJSONObject(i);
-                            HashMap<String, String> map = new HashMap<String, String>();
-
-                            map.put("name", thread.get("name").toString());
-                            map.put("id", thread.get("threadid").toString());
-                            threadList.add(map);
-                        } catch (Exception e) {
-                            Log.e("LIST", "Error parsing json", e);
-                        }
-                    }
-                    // Assign the data to the list.
-                    list = (ListView)findViewById(R.id.threadList);
-                    ListAdapter adapter = new SimpleAdapter(getApplicationContext(),
-                            threadList, R.layout.threadlist_item,
-                            new String[] {"name"},
-                            new int[] {R.id.threadName});
-
-                    list.setAdapter(adapter);
-                    list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                            Intent messageThreadIntent = new Intent(getApplicationContext(), MessageThreadActivity.class);
-                            messageThreadIntent.putExtra("threadid", threadList.get(+position).get("id"));
-                            messageThreadIntent.putExtra("threadname", threadList.get(+position).get("name"));
-                            messageThreadIntent.putExtra("autologin", "");
-                            startActivity(messageThreadIntent);
-                        }
-                    });
+                    threadList.clear();
+                    threadList.addAll(Thread.fromJson(tests));
+                    addDataToList();
                     progress.dismiss();
                 } catch (Exception e) {
                     Log.e("LIST", "Error retrieving threads from response.");
                 }
+            }
+        });
+    }
+
+    public void addDataToList() {
+        // Assign the data to the list.
+        list = (ListView)findViewById(R.id.threadList);
+        ThreadsAdapter ta = new ThreadsAdapter(this, threadList);
+        ListAdapter adapter = ta;
+        list.setAdapter(adapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent messageThreadIntent = new Intent(getApplicationContext(), MessageThreadActivity.class);
+                messageThreadIntent.putExtra("threadid", threadList.get(+position).id);
+                messageThreadIntent.putExtra("threadname", threadList.get(+position).name);
+                messageThreadIntent.putExtra("autologin", "");
+                //messageThreadIntent.putExtra("thread", threadList.get(+position));
+                startActivity(messageThreadIntent);
             }
         });
     }

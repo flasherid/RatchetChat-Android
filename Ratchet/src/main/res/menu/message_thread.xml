@@ -6,4 +6,16 @@
         android:title="Refresh"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/renameButton"
+        android:title="Rename Thread"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    <item android:id="@+id/leaveButton"
+        android:title="Leave Thread"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    <item android:id="@+id/silenceButton"
+        android:title="Stop Notifications"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>

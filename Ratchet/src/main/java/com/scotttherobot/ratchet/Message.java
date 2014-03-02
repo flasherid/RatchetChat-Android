@@ -19,6 +19,7 @@ public class Message implements Serializable {
     public String sent;
     public String userid;
     public String body;
+    public int id;
 
     public Message(JSONObject object) {
         try {
@@ -27,6 +28,7 @@ public class Message implements Serializable {
             this.sent = object.getString("sent");
             this.userid = object.getString("userid");
             this.body = object.getString("body");
+            this.id = Integer.parseInt(object.getString("id"));
         } catch (Exception e) {
             Log.e("MESSAGE", "There was an issue instantiating!");
         }

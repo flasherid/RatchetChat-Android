@@ -2,10 +2,12 @@ package com.scotttherobot.ratchet;
 
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -43,13 +45,12 @@ import java.util.HashMap;
 
 public class MessageThreadActivity extends Activity {
 
-    String threadId;
+    int threadId;
     String threadName;
     String cacheFile;
     ArrayList<Message> messageList = new ArrayList<Message>();
     ListView list;
     MessagesAdapter messagesAdapter;
-    private Intent broadcastIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,7 @@ public class MessageThreadActivity extends Activity {
         registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
 
         Intent thisIntent = getIntent();
-        threadId = thisIntent.getStringExtra("threadid");
+        threadId = thisIntent.getIntExtra("threadid", 0);
         threadName = thisIntent.getStringExtra("threadname");
         messageList = new ArrayList<Message>();
         //addDataToList();
@@ -96,7 +97,7 @@ public class MessageThreadActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-        persistData();
+       // persistData();
         unregisterReceiver(broadcastReceiver);
     }
 
@@ -141,7 +142,9 @@ public class MessageThreadActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.v("THREAD", "Received broadcast. Updating data.");
-            getThreadData();
+            int id = intent.getIntExtra("threadid", 0);
+            if (id == threadId)
+                getThreadData();
         }
     };
 
@@ -164,12 +167,7 @@ public class MessageThreadActivity extends Activity {
                 //Log.d("THREAD", "Response: " + response.toString());
                 try {
                     JSONArray messages = response.getJSONArray("transcript");
-
-                    //for (int i = 0; i < messages.length(); i++) {
-                        //Message mes = new Message(messages.getJSONObject(i));
-                        //messagesAdapter.add(mes);
-                    //}
-                    messageList = Message.fromJson(messages);
+                    messageList.addAll(Message.fromJson(messages));
                     addDataToList();
                     //persistData();
 
@@ -227,9 +225,82 @@ public class MessageThreadActivity extends Activity {
                 // Refresh the data.
                 getThreadData();
                 return true;
+            case R.id.leaveButton:
+                // Leave the thread.
+                // also finish()
+                return true;
+            case R.id.renameButton:
+                // rename the thread
+                renameAlert("Rename", "New thread name");
+                return true;
+            case R.id.silenceButton:
+                // toggle notifications
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void rename(String name) {
+        RequestParams p = new RequestParams();
+        p.add("name", name);
+        ApiClient.post("threads/" + this.threadId + "/rename", p, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                try {
+                    if (response.getJSONArray("errors").length() != 0) {
+                        // There was an error! Throw an alert.
+                        showAlert("Error", response.getJSONArray("errors").getString(0));
+                    } else {
+                        setTitle(response.getString("name"));
+                        getThreadData();
+                    }
+                } catch (Exception e) {
+                    Log.e("LIST", "Error retrieving messages from response.");
+                }
+            }
+        });
+    }
+
+    public void renameAlert(String title, String message) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(title);
+        final EditText input = new EditText(this);
+        input.setHint(message);
+        alert.setView(input);
+        alert.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                String name = input.getText().toString();
+                if (name.trim().isEmpty()) {
+                    showAlert("Error", "You must provide a new name.");
+                    return;
+                }
+                rename(name);
+            }
+        });
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alert.show();
+    }
+
+    public void showAlert(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
+                .setTitle(title)
+                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**
