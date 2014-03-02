@@ -46,8 +46,9 @@ public class MessageThreadActivity extends Activity {
     String threadId;
     String threadName;
     String cacheFile;
-    ArrayList<HashMap<String, Object>> messageList = new ArrayList<HashMap<String, Object>>();
+    ArrayList<Message> messageList = new ArrayList<Message>();
     ListView list;
+    MessagesAdapter messagesAdapter;
     private Intent broadcastIntent;
 
     @Override
@@ -67,16 +68,17 @@ public class MessageThreadActivity extends Activity {
         Intent thisIntent = getIntent();
         threadId = thisIntent.getStringExtra("threadid");
         threadName = thisIntent.getStringExtra("threadname");
-        messageList = new ArrayList<HashMap<String, Object>>();
+        messageList = new ArrayList<Message>();
+        //addDataToList();
 
-        cacheFile = "thread_" + ApiClient.userId + "_" + threadId + ".dat";
+        cacheFile = "thread_1_" + ApiClient.userId + "_" + threadId + ".dat";
 
         setTitle(threadName);
 
         ApiClient.setContext(getApplicationContext());
         ApiClient.getCredentials();
 
-        restoreData();
+        //restoreData();
         //addDataToList();
 
         Log.v("THREAD", "Data objects restored...");
@@ -152,8 +154,8 @@ public class MessageThreadActivity extends Activity {
         } else {
             Log.v("THREAD", "Getting last one.");
             // Get the timestamp on the oldest one.
-            HashMap message = messageList.get(messageList.size() - 1);
-            p.put("since", message.get("sent"));
+            Message message = messageList.get(messageList.size() - 1);
+            p.put("since", message.sent);
         }
 
         ApiClient.get("threads/" + this.threadId, p, new JsonHttpResponseHandler() {
@@ -162,41 +164,14 @@ public class MessageThreadActivity extends Activity {
                 //Log.d("THREAD", "Response: " + response.toString());
                 try {
                     JSONArray messages = response.getJSONArray("transcript");
-                    // We need to convert the JSONArray to
-                    // a HashMap so we can use it to fill the ListView.
-                    for (int i = 0; i < messages.length(); i++) {
-                        try {
-                            JSONObject message = messages.getJSONObject(i);
-                            //Log.d("THREAD", "message: " + message.toString());
-                            HashMap<String, Object> map = new HashMap<String, Object>();
 
-                            String userid = message.get("userid").toString();
-
-                            ArrayList<String> cellData = new ArrayList<String>();
-                            if (userid.compareTo(ApiClient.userId) == 0) {
-                                map.put("rightimage", ((Integer)(R.drawable.chat)).toString());
-                                map.put("leftimage", "0");
-                                cellData.add(0, "right");
-                            } else {
-                                map.put("leftimage", ((Integer)(R.drawable.chat)).toString());
-                                map.put("rightimage", "0");
-                                cellData.add(0, "left");
-                            }
-                            cellData.add(1, message.get("body").toString());
-
-                            map.put("body", cellData);
-                            map.put("userid", userid);
-                            map.put("sent", message.get("sent").toString());
-                            map.put("username", message.get("username").toString());
-                            messageList.add(map);
-                        } catch (Exception e) {
-                            Log.e("THREAD", "Error parsing json", e);
-                        }
-                    }
-
+                    //for (int i = 0; i < messages.length(); i++) {
+                        //Message mes = new Message(messages.getJSONObject(i));
+                        //messagesAdapter.add(mes);
+                    //}
+                    messageList = Message.fromJson(messages);
                     addDataToList();
-
-                    persistData();
+                    //persistData();
 
                 } catch (Exception e) {
                     Log.e("LIST", "Error retrieving messages from response.");
@@ -208,15 +183,8 @@ public class MessageThreadActivity extends Activity {
     public void addDataToList() {
         // Assign the data to the list.
         list = (ListView)findViewById(R.id.messageList);
-
-        SimpleAdapter sa = new SimpleAdapter(getApplicationContext(),
-                messageList, R.layout.messagelist_item,
-                new String[] {"leftimage", "body", "rightimage"},
-                new int[] {R.id.leftImage, R.id.messageBody, R.id.rightImage});
-        sa.setViewBinder(new MessageViewBinder());
-
-        ListAdapter adapter = sa;
-
+        messagesAdapter = new MessagesAdapter(this, messageList);
+        ListAdapter adapter = messagesAdapter;
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -224,7 +192,6 @@ public class MessageThreadActivity extends Activity {
 
             }
         });
-
         list.setSelection(adapter.getCount() - 1);
     }
 
