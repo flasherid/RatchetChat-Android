@@ -2,6 +2,7 @@ package com.scotttherobot.ratchet;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -72,15 +73,19 @@ public class LoginActivity extends Activity {
     }
 
     public void doLogin(View view) {
+        final ProgressDialog progress = new ProgressDialog(this);
+        progress.setTitle("Logging in...");
+        progress.setMessage("Hold, please.");
+        progress.show();
+
         String username = ((EditText)findViewById(R.id.username)).getText().toString();
         String password = ((EditText)findViewById(R.id.password)).getText().toString();
         ApiClient.login(username, password, new ApiClient.loginHandler() {
             @Override
             public void onLogin(JSONObject response) {
                 ((TextView)findViewById(R.id.sessionLabel)).setText("Login Successful");
-
                 registerForPushNotifications();
-
+                progress.dismiss();
                 Intent threadIntent = new Intent(getApplicationContext(), ThreadListActivity.class);
                 startActivity(threadIntent);
                 finish();
@@ -129,7 +134,7 @@ public class LoginActivity extends Activity {
         ApiClient.post("notificationregister/", p, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONObject response) {
-                Log.v("LOGIN", "Registration success");
+                Log.v("LOGIN", "Registration success: " + response.toString());
                 storeRegistrationId(getApplicationContext(), getRegistrationId(getApplicationContext()));
             }
             @Override

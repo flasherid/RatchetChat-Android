@@ -3,8 +3,13 @@ package com.scotttherobot.ratchet;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +30,13 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,8 +44,10 @@ public class MessageThreadActivity extends Activity {
 
     String threadId;
     String threadName;
+    String cacheFile;
     ArrayList<HashMap<String, String>> messageList = new ArrayList<HashMap<String, String>>();
     ListView list;
+    private Intent broadcastIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,21 +60,89 @@ public class MessageThreadActivity extends Activity {
                     .commit();
         }
 
-        //this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
+        //broadcastIntent = new Intent(this, GcmIntentService.class);
+        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
 
         Intent thisIntent = getIntent();
         threadId = thisIntent.getStringExtra("threadid");
         threadName = thisIntent.getStringExtra("threadname");
+        messageList = new ArrayList<HashMap<String, String>>();
+
+        cacheFile = "thread_" + threadId + ".dat";
 
         setTitle(threadName);
 
+        restoreData();
+
+        final ProgressDialog progress = new ProgressDialog(this);
+        progress.setTitle("Getting messages.");
+        progress.setMessage("Hold, please.");
+        progress.show();
         getThreadData();
+        progress.dismiss();
+
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        persistData();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
+    }
+
+    public void restoreData() {
+        Context c = getApplicationContext();
+        try {
+            File inFile = new File(Environment.getExternalStorageDirectory(), cacheFile);
+            ObjectInput in = new ObjectInputStream(new FileInputStream(inFile));
+            messageList = (ArrayList) in.readObject();
+            Log.v("THREAD", "Successfully read data.");
+        } catch (Exception e) {
+            Log.e("THREAD", "Error reading data.", e);
+        }
+
+    }
+    public void persistData() {
+        Context c = getApplicationContext();
+        try {
+            File saveFile = new File(Environment.getExternalStorageDirectory(), cacheFile);
+            ObjectOutput out = new ObjectOutputStream(new FileOutputStream(saveFile));
+            out.writeObject(messageList);
+            Log.v("THREAD", "Successfully wrote data.");
+        } catch (Exception e) {
+             Log.e("THREAD", "Error saving data.", e);
+         }
+
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v("THREAD", "Received broadcast. Updating data.");
+            getThreadData();
+        }
+    };
+
     public void getThreadData() {
-        messageList = new ArrayList<HashMap<String, String>>();
-        ApiClient.get("threads/" + this.threadId, null, new JsonHttpResponseHandler() {
+
+        RequestParams p = new RequestParams();
+        if (messageList.isEmpty()) {
+            Log.v("THREAD", "Empty. Getting all..");
+            p.put("since", 0);
+        } else {
+            Log.v("THREAD", "Getting last one.");
+            // Get the timestamp on the oldest one.
+            HashMap message = messageList.get(messageList.size() - 1);
+            p.put("since", message.get("sent"));
+        }
+
+        ApiClient.get("threads/" + this.threadId, p, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONObject response) {
                 //Log.d("THREAD", "Response: " + response.toString());
@@ -93,6 +175,7 @@ public class MessageThreadActivity extends Activity {
                             Log.e("THREAD", "Error parsing json", e);
                         }
                     }
+
                     // Assign the data to the list.
                     list = (ListView)findViewById(R.id.messageList);
 
@@ -113,6 +196,8 @@ public class MessageThreadActivity extends Activity {
                     });
 
                     list.setSelection(adapter.getCount() - 1);
+                    persistData();
+
                 } catch (Exception e) {
                     Log.e("LIST", "Error retrieving threads from response.");
                 }

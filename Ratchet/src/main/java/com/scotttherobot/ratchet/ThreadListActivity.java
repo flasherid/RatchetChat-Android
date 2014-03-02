@@ -3,6 +3,7 @@ package com.scotttherobot.ratchet;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,6 +47,11 @@ public class ThreadListActivity extends Activity {
     }
 
     public void getThreadData() {
+        final ProgressDialog progress = new ProgressDialog(this);
+        progress.setTitle("Getting threads.");
+        progress.setMessage("Hold, please.");
+        progress.show();
+
         threadList = new ArrayList<HashMap<String, String>>();
         ApiClient.get("threads/", null, new JsonHttpResponseHandler() {
             @Override
@@ -84,6 +90,7 @@ public class ThreadListActivity extends Activity {
                             startActivity(messageThreadIntent);
                         }
                     });
+                    progress.dismiss();
                 } catch (Exception e) {
                     Log.e("LIST", "Error retrieving threads from response.");
                 }

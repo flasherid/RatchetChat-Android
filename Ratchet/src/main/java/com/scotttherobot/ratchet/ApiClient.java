@@ -1,7 +1,11 @@
 package com.scotttherobot.ratchet;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.android.gms.common.api.Api;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.loopj.android.http.*;
 
@@ -39,16 +43,16 @@ public class ApiClient {
             public void onSuccess(JSONObject response) {
                 //Log.v("API", "Response: " + response.toString());
                 try {
-                    Log.v("API", "Login success");
+                    Log.v("API", "Login success: " + response.toString());
                     SESSION = response.getString("key");
                     userId = response.getString("userid");
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     Log.v("API", "Fetching key failed.");
                     SESSION = null;
                 }
                 loginDone.onLogin(response);
             }
+
             @Override
             public void onFailure(Throwable t, JSONObject o) {
                 Log.v("API", "Login failed", t);
