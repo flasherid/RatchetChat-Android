@@ -81,9 +81,10 @@ public class MessageThreadActivity extends Activity {
 
         //restoreData();
         //addDataToList();
+        fetchAndShowProgress();
+    }
 
-        //Log.v("THREAD", "Data objects restored...");
-
+    public void fetchAndShowProgress() {
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setTitle("Getting messages.");
         progress.setMessage("Hold, please.");
@@ -91,7 +92,16 @@ public class MessageThreadActivity extends Activity {
         Log.v("THREAD", "Fetching new stuff.");
         getThreadData();
         progress.dismiss();
+    }
 
+    @Override
+    public void onNewIntent(Intent thisIntent) {
+        threadId = thisIntent.getIntExtra("threadid", 0);
+        threadName = thisIntent.getStringExtra("threadname");
+        messageList.clear();
+        setTitle(threadName);
+        fetchAndShowProgress();
+        Log.e("THREAD", "onNewIntent called " + threadId + " " + threadName);
     }
 
 
@@ -111,7 +121,7 @@ public class MessageThreadActivity extends Activity {
     @Override
     public void onStop() {
         super.onStop();
-        finish();
+        //finish();
     }
 
     public void restoreData() {
