@@ -53,8 +53,19 @@ public class LoginActivity extends Activity {
                     .commit();
         }
         ApiClient.setContext(getApplicationContext());
-        if (ApiClient.getCredentials())
-            gotoThreads();
+        final Resources res = getResources();
+        if (ApiClient.getCredentials()) {
+            ApiClient.loginWithSavedCredentials(new ApiClient.loginHandler() {
+                @Override
+                public void onLogin(JSONObject response) {
+                    gotoThreads();
+                }
+                @Override
+                public void onFailure(JSONObject response) {
+                    showAlert(res.getString(R.string.loginFailed), res.getString(R.string.loginFailedMessage));
+                }
+            });
+        }
     }
 
 
@@ -95,10 +106,6 @@ public class LoginActivity extends Activity {
                 //((TextView)findViewById(R.id.sessionLabel)).setText("Login Successful");
                 try {
                     progress.dismiss();
-                    if (response.getJSONArray("errors").length() != 0) {
-                        showAlert(res.getString(R.string.loginFailed), res.getString(R.string.loginFailedMessage));
-                        return;
-                    }
                     registerForPushNotifications();
                     gotoThreads();
                 } catch (Exception e) {
@@ -107,7 +114,8 @@ public class LoginActivity extends Activity {
             }
             @Override
             public void onFailure(JSONObject response) {
-                showAlert(res.getString(R.string.loginFailed), res.getString(R.string.networkFailedMessage));
+                progress.dismiss();
+                showAlert(res.getString(R.string.loginFailed), res.getString(R.string.loginFailedMessage));
             }
         });
 

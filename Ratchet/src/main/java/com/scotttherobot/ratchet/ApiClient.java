@@ -36,6 +36,11 @@ public class ApiClient {
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
+    public static void loginWithSavedCredentials(loginHandler isDone) {
+        //getCredentials();
+        login(globalUsername, globalPassword, isDone);
+    }
+
     public static void login(String username, String password, loginHandler isDone) {
         loginDone = isDone;
         Log.v("API", "Attempting login.");
@@ -52,15 +57,19 @@ public class ApiClient {
             public void onSuccess(JSONObject response) {
                 //Log.v("API", "Response: " + response.toString());
                 try {
-                    Log.v("API", "Login success: " + response.toString());
-                    SESSION = response.getString("key");
-                    userId = response.getString("userid");
-                    saveCredentials();
+                    if (response.getJSONArray("errors").length() == 0) {
+                        SESSION = response.getString("key");
+                        userId = response.getString("userid");
+                        saveCredentials();
+                        loginDone.onLogin(response);
+                    } else {
+                        loginDone.onFailure(response);
+                    }
                 } catch (Exception e) {
                     Log.v("API", "Fetching key failed.");
+                    loginDone.onFailure(response);
                     SESSION = null;
                 }
-                loginDone.onLogin(response);
             }
 
             @Override
