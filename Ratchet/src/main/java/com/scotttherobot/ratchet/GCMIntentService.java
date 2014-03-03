@@ -2,6 +2,7 @@ package com.scotttherobot.ratchet;
 
 import android.app.ActivityManager;
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -102,10 +103,12 @@ public class GcmIntentService extends IntentService {
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.drawable.kim)
                             .setContentTitle(title)
+                            .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.FLAG_SHOW_LIGHTS)
+                            .setLights(0xFFE40045, 300, 100)
                             .setStyle(new NotificationCompat.BigTextStyle()
                                     .bigText(msg))
                             .setContentText(msg);
-            mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+            //mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
             mBuilder.setAutoCancel(true);
 
             mBuilder.setContentIntent(contentIntent);

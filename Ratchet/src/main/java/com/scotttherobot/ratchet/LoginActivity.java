@@ -1,13 +1,16 @@
 package com.scotttherobot.ratchet;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -69,16 +72,19 @@ public class LoginActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.createAccount) {
+            Intent newUserIntent = new Intent(this, UserRegistrationActivity.class);
+            startActivity(newUserIntent);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     public void doLogin(View view) {
+        final Resources res = getResources();
         final ProgressDialog progress = new ProgressDialog(this);
-        progress.setTitle("Logging in...");
-        progress.setMessage("Hold, please.");
+        progress.setTitle(res.getString(R.string.loggingIn));
+        progress.setMessage(res.getString(R.string.holdPlease));
         progress.show();
 
         String username = ((EditText)findViewById(R.id.username)).getText().toString();
@@ -86,14 +92,22 @@ public class LoginActivity extends Activity {
         ApiClient.login(username, password, new ApiClient.loginHandler() {
             @Override
             public void onLogin(JSONObject response) {
-                ((TextView)findViewById(R.id.sessionLabel)).setText("Login Successful");
-                registerForPushNotifications();
-                progress.dismiss();
-                gotoThreads();
+                //((TextView)findViewById(R.id.sessionLabel)).setText("Login Successful");
+                try {
+                    progress.dismiss();
+                    if (response.getJSONArray("errors").length() != 0) {
+                        showAlert(res.getString(R.string.loginFailed), res.getString(R.string.loginFailedMessage));
+                        return;
+                    }
+                    registerForPushNotifications();
+                    gotoThreads();
+                } catch (Exception e) {
+
+                }
             }
             @Override
             public void onFailure(JSONObject response) {
-                ((TextView)findViewById(R.id.sessionLabel)).setText("Login Failed!!");
+                showAlert(res.getString(R.string.loginFailed), res.getString(R.string.networkFailedMessage));
             }
         });
 
@@ -103,6 +117,20 @@ public class LoginActivity extends Activity {
         Intent threadIntent = new Intent(getApplicationContext(), ThreadListActivity.class);
         startActivity(threadIntent);
         finish();
+    }
+
+    public void showAlert(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
+                .setTitle(title)
+                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**

@@ -2,10 +2,28 @@
 <resources>
 
     <string name="app_name">Ratchet</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="createAccount">Create Account</string>
+    <string name="creatingAccount">Creating Account</string>
     <string name="title_activity_thread_list">ThreadListActivity</string>
     <string name="title_activity_message_thread">MessageThreadActivity</string>
     <string name="title_activity_create_thread">CreateThreadActivity</string>
+    <string name="login">Log In</string>
+    <string name="loggingIn">Logging in...</string>
+    <string name="holdPlease">Hold, please!</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="email">Email Address</string>
+    <string name="firstname">First Name</string>
+    <string name="lastname">Last Name</string>
+    <string name="loginFailed">Login Failed!</string>
+    <string name="loginFailedMessage">Hmm... That username and password didn\'t seem to work. Try again!</string>
+    <string name="networkFailedMessage">Oops! Couldn\'t reach the server... Do you have data service?</string>
+    <string name="title_activity_user_registration">UserRegistrationActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="regFailure">Registration Failure</string>
+    <string name="regFailureMessage">Oh no! Registration failed! Did you fill out all the boxes?</string>
+    <string name="success">Success!</string>
+    <string name="resSuccessMessage">Registration was successful. You can now log in with the username </string>
 
 </resources>
