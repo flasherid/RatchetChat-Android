@@ -54,7 +54,7 @@ public class GcmIntentService extends IntentService {
                 Log.i("GCMINTENT", "Received: " + extras.toString());
                 try {
                     String message = extras.getString("message");
-                    int threadid = Integer.parseInt(extras.getString("threadid"));
+                    String threadid = extras.getString("threadid");
                     String threadname = extras.getString("threadname");
                     sendNotification(message, threadid, threadname);
                 } catch (Exception e) {
@@ -69,7 +69,7 @@ public class GcmIntentService extends IntentService {
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg, int threadid, String threadname) {
+    private void sendNotification(String msg, String threadid, String threadname) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -85,10 +85,8 @@ public class GcmIntentService extends IntentService {
         }
 
         Intent threadIntent = new Intent(this, MessageThreadActivity.class);
-        threadIntent.setAction(Intent.ACTION_MAIN);
-        threadIntent.setAction(Intent.CATEGORY_LAUNCHER);
-        threadIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        threadIntent.putExtra("threadid", threadid);
+        threadIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        threadIntent.putExtra("threadid", Integer.parseInt(threadid));
         threadIntent.putExtra("threadname", threadname);
 
         broadcastIntent.putExtra("threadid", threadid);
@@ -98,15 +96,14 @@ public class GcmIntentService extends IntentService {
         if (!isActivityFound) {
             Log.v("GCM", "The app is IS NOT running");
 
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, threadIntent, 0);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, threadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.drawable.chat)
-                            .setContentTitle("Ratchet Chat " + threadid)
+                            .setContentTitle("id " + threadIntent.getIntExtra("threadid", 0))
                             .setStyle(new NotificationCompat.BigTextStyle()
                                     .bigText(msg))
                             .setContentText(msg);
-
             mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
             mBuilder.setAutoCancel(true);
 

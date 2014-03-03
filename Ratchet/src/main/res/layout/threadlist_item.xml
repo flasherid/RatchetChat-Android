@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
     android:weightSum="1"
-    android:gravity="center">
+    android:gravity="left"
+    android:background="#FFFFFF"
+    android:paddingLeft="10dp"
+    android:paddingTop="10dp"
+    android:paddingRight="10dp" >
+
+    <ImageView
+        android:id="@+id/threadImage"
+        android:layout_marginLeft="0dp"
+        android:layout_width="75dp"
+        android:layout_height="75dp" />
+
     <TextView
         android:id="@+id/threadName"
-        android:layout_width="116dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.81"
+        android:layout_width="fill_parent"
+        android:layout_height="75dp"
+        android:layout_weight="1"
         android:gravity="center_vertical"
         android:textSize="25sp"
+        android:paddingLeft="10dp"
         />
 
 </LinearLayout>

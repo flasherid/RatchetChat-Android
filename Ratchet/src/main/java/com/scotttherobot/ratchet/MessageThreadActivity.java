@@ -63,13 +63,13 @@ public class MessageThreadActivity extends Activity {
                     .commit();
         }
 
-
-        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
-
         Intent thisIntent = getIntent();
         threadId = thisIntent.getIntExtra("threadid", 0);
         threadName = thisIntent.getStringExtra("threadname");
         messageList = new ArrayList<Message>();
+
+        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
+
         //addDataToList();
 
         cacheFile = "thread_1_" + ApiClient.userId + "_" + threadId + ".dat";
@@ -82,7 +82,7 @@ public class MessageThreadActivity extends Activity {
         //restoreData();
         //addDataToList();
 
-        Log.v("THREAD", "Data objects restored...");
+        //Log.v("THREAD", "Data objects restored...");
 
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setTitle("Getting messages.");
@@ -93,6 +93,7 @@ public class MessageThreadActivity extends Activity {
         progress.dismiss();
 
     }
+
 
     @Override
     public void onPause() {
@@ -142,8 +143,8 @@ public class MessageThreadActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.v("THREAD", "Received broadcast. Updating data.");
-            int id = intent.getIntExtra("threadid", 0);
-            if (id == threadId)
+           // int id = intent.getIntExtra("threadid", 0);
+            //if (id == threadId)
                 getThreadData();
         }
     };
@@ -227,7 +228,7 @@ public class MessageThreadActivity extends Activity {
                 return true;
             case R.id.leaveButton:
                 // Leave the thread.
-                // also finish()
+                leaveThread();
                 return true;
             case R.id.renameButton:
                 // rename the thread
@@ -236,9 +237,88 @@ public class MessageThreadActivity extends Activity {
             case R.id.silenceButton:
                 // toggle notifications
                 return true;
+            case R.id.inviteUser:
+                inviteUser("Invite", "Username");
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void inviteUser(String title, String message) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(title);
+        final EditText input = new EditText(this);
+        input.setHint(message);
+        alert.setView(input);
+        alert.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                String name = input.getText().toString();
+                if (name.trim().isEmpty()) {
+                    showAlert("Error", "You must provide a name.");
+                    return;
+                }
+                invite(name);
+            }
+        });
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alert.show();
+    }
+
+    public void invite(String name) {
+        RequestParams p = new RequestParams();
+        p.add("user", name);
+        ApiClient.post("threads/" + this.threadId + "/joinbyname", p, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                try {
+                    if (response.getJSONArray("errors").length() != 0) {
+                        // There was an error! Throw an alert.
+                        showAlert("Error", response.getJSONArray("errors").getString(0));
+                    } else {
+                        showAlert("User added", "Successfully added " + response.getJSONObject("added").getString("username"));
+                    }
+                } catch (Exception e) {
+                    Log.e("LIST", "Error retrieving messages from response.");
+                }
+            }
+        });
+    }
+
+    public void leaveThread() {
+        final int threadid = threadId;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("You will not be able to see this thread unless you are added again.")
+                .setTitle("Are you sure?")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        ApiClient.delete("threads/" + threadid, new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(JSONObject response) {
+                                finish();
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("Cancel!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
     }
 
     public void rename(String name) {

@@ -81,6 +81,11 @@ public class ApiClient {
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
+    public static void delete(String url, AsyncHttpResponseHandler responseHandler) {
+        client.addHeader("cards-key", SESSION);
+        client.delete(getAbsoluteUrl(url), responseHandler);
+    }
+
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
     }

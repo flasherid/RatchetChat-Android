@@ -18,6 +18,7 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
 
     public static class ViewHolder {
         TextView name;
+        ImageView image;
     }
 
     public ThreadsAdapter(Context context, ArrayList<Thread> threads) {
@@ -34,11 +35,15 @@ public class ThreadsAdapter extends ArrayAdapter<Thread> {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.threadlist_item, null);
             viewHolder.name = (TextView) convertView.findViewById(R.id.threadName);
+            viewHolder.image = (ImageView) convertView.findViewById(R.id.threadImage);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.name.setText(thread.name);
+        viewHolder.image.setBackgroundResource(thread.image);
+        viewHolder.image.setImageResource(R.drawable.circle_mask);
+
         return convertView;
     }
 }

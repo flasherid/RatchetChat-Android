@@ -21,6 +21,7 @@ public class Thread implements Serializable {
     public int userid;
     public String notifications;
     public int joined;
+    public int image;
 
     public Thread(JSONObject object) {
         try {
@@ -30,6 +31,7 @@ public class Thread implements Serializable {
             this.userid = Integer.parseInt(object.getString("userid"));
             this.notifications = object.getString("notifications");
             this.joined = Integer.parseInt(object.getString("joined"));
+            this.image = R.drawable.chat;
         } catch (JSONException e) {
             Log.e("THREAD_OBJ", "There was an issue instantiating!");
         }

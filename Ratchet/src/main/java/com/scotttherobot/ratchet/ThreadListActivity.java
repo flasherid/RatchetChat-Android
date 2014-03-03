@@ -117,7 +117,7 @@ public class ThreadListActivity extends Activity {
                 Intent messageThreadIntent = new Intent(getApplicationContext(), MessageThreadActivity.class);
                 messageThreadIntent.putExtra("threadid", threadList.get(+position).id);
                 messageThreadIntent.putExtra("threadname", threadList.get(+position).name);
-                messageThreadIntent.putExtra("autologin", "");
+                //messageThreadIntent.putExtra("autologin", "");
                 //messageThreadIntent.putExtra("thread", threadList.get(+position));
                 startActivity(messageThreadIntent);
             }

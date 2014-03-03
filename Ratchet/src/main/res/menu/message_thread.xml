@@ -18,4 +18,8 @@
         android:title="Stop Notifications"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/inviteUser"
+        android:title="Invite Someone"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>
