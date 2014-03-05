@@ -121,6 +121,7 @@ public class MessageThreadActivity extends Activity {
     @Override
     public void onStop() {
         super.onStop();
+        //unregisterReceiver(broadcastReceiver);
         //finish();
     }
 

@@ -1,11 +1,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:padding="0dip"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    android:paddingBottom="0dp"
     android:background="#FFFFFF">
 
     <ListView
+        android:padding="0dip"
         android:id="@+id/messageList"
         android:layout_width="fill_parent"
         android:layout_height="460dp"

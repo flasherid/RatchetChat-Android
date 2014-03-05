@@ -20,6 +20,8 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         TextView body;
         ImageView leftImage;
         ImageView rightImage;
+        TextView senderLabelLeft;
+        TextView senderLabelRight;
     }
 
     public MessagesAdapter(Context context, ArrayList<Message> messages) {
@@ -39,6 +41,8 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             viewHolder.body = (TextView) convertView.findViewById(R.id.messageBody);
             viewHolder.leftImage = (ImageView) convertView.findViewById(R.id.leftImage);
             viewHolder.rightImage = (ImageView) convertView.findViewById(R.id.rightImage);
+            viewHolder.senderLabelLeft = (TextView) convertView.findViewById(R.id.senderLabelLeft);
+            viewHolder.senderLabelRight = (TextView) convertView.findViewById(R.id.senderLabelRight);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -51,11 +55,14 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         if (ApiClient.userId.compareTo(message.userid) == 0) {
             viewHolder.rightImage.setBackgroundResource(R.drawable.chat);
             viewHolder.leftImage.getLayoutParams().width = 0;
+            viewHolder.senderLabelLeft.getLayoutParams().width = 0;
             viewHolder.body.setGravity(Gravity.RIGHT);
         } else {
             viewHolder.leftImage.setBackgroundResource(R.drawable.chat);
             viewHolder.rightImage.getLayoutParams().width = 0;
             viewHolder.body.setGravity(Gravity.LEFT);
+            viewHolder.senderLabelLeft.setText(message.username);
+            viewHolder.senderLabelRight.getLayoutParams().width = 0;
         }
 
         return convertView;
