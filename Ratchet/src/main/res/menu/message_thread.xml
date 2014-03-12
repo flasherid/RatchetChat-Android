@@ -22,4 +22,8 @@
         android:title="Invite Someone"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/sendPhoto"
+        android:title="Send Photo"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>

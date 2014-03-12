@@ -10,9 +10,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +26,7 @@ import android.os.Build;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -35,6 +39,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
@@ -44,6 +49,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MessageThreadActivity extends Activity {
+
+    private static final int SELECT_PICTURE = 1;
 
     int threadId;
     String threadName;
@@ -219,6 +226,17 @@ public class MessageThreadActivity extends Activity {
         messageInput.setText("");
     }
 
+    public void sendPhoto(String medid) {
+        RequestParams p = new RequestParams();
+        p.put("body", "image " + medid);
+        p.put("medid", medid);
+        ApiClient.post("threads/" + this.threadId, p, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                getThreadData();
+            }
+        });
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         
@@ -251,10 +269,82 @@ public class MessageThreadActivity extends Activity {
             case R.id.inviteUser:
                 inviteUser("Invite", "Username");
                 return true;
+            case R.id.sendPhoto:
+                selectPhoto();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    public void selectPhoto() {
+        Intent photoPicker = new Intent();
+        photoPicker.setType("image/*");
+        photoPicker.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(photoPicker, "Select Picture"), SELECT_PICTURE);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE) {
+                Uri selectedImageUri = data.getData();
+                try {
+                    final ProgressDialog progress = new ProgressDialog(this);
+                    progress.setTitle("Uploading.");
+                    progress.setMessage("Hold, please.");
+                    progress.setCanceledOnTouchOutside(false);
+                    progress.show();
+
+                    File photo = new File(getPathFromUri(selectedImageUri));
+                    RequestParams p = new RequestParams();
+                    p.put("file1", photo);
+
+                    ApiClient.post("media", p, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(JSONObject response) {
+                            progress.dismiss();
+                            try {
+                                if (response.getJSONArray("errors").length() == 0) {
+                                    JSONArray meta = response.getJSONArray("uploaded");
+                                    String medid = meta.getJSONObject(0).getString("medid");
+                                    showAlert("Success", "Your image got medid " + medid);
+                                    // Now, send the photo as a message.
+                                    sendPhoto(medid);
+                                } else {
+                                    showAlert("Failure", "There were errors.");
+                                }
+                            }
+                            catch (Exception e) {
+                                showAlert("Failure", "There was an EXCEPTION!");
+                                Log.e("PHOTO", "fail", e);
+                            }
+                        }
+                        @Override
+                        public void onFailure(Throwable t, JSONObject o) {
+                            progress.dismiss();
+                            Log.e("PHOTO", o.toString(), t);
+
+                            showAlert("Failure", "There was an error uploading the photo. onFailure");
+                        }
+                    });
+
+                }
+                catch (FileNotFoundException e) {
+                    Log.e("IMAGE", "Exception thrown.");
+                }
+            }
+        }
+    }
+
+    public String getPathFromUri(Uri contentUri) {
+        String [] proj={MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        int col = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(col);
+    }
+
 
     public void inviteUser(String title, String message) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
