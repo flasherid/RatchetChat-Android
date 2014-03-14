@@ -40,7 +40,7 @@ public class User implements Serializable {
             this.id = Integer.parseInt(object.getString("userid"));
             this.avatarId = Integer.parseInt(object.getString("avatar"));
             this.latitude = Double.parseDouble(object.getString("latitude"));
-            this.longitude = Double.parseDouble(object.getString("longitued"));
+            this.longitude = Double.parseDouble(object.getString("longitude"));
             this.distance = Double.parseDouble(object.getString("distance"));
         } catch (JSONException e) {
             Log.e("USER", "There was an issue instantiating!");

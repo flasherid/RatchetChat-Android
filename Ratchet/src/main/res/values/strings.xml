@@ -26,5 +26,6 @@
     <string name="success">Success!</string>
     <string name="resSuccessMessage">Registration was successful. You can now log in with the username </string>
     <string name="title_activity_nearby_users">NearbyUsersActivity</string>
+    <string name="title_activity_profile_view">ProfileViewActivity</string>
 
 </resources>

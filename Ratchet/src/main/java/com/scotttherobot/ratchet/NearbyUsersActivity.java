@@ -86,14 +86,13 @@ public class NearbyUsersActivity extends Activity {
         userGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                /*
-                Intent messageThreadIntent = new Intent(getApplicationContext(), MessageThreadActivity.class);
-                messageThreadIntent.putExtra("threadid", threadList.get(+position).id);
-                messageThreadIntent.putExtra("threadname", threadList.get(+position).name);
-                //messageThreadIntent.putExtra("autologin", "");
-                //messageThreadIntent.putExtra("thread", threadList.get(+position));
-                startActivity(messageThreadIntent);
-                */
+                Intent userProfileIntent = new Intent(getApplicationContext(), ProfileViewActivity.class);
+                //Bundle b = new Bundle();
+                //b.putSerializable("user", nearby.get(position));
+                userProfileIntent.putExtra("user", nearby.get(position));
+                startActivity(userProfileIntent);
+                //Log.v("NEARBY", "CLICKED:");
+                //Log.v("NEARBY", nearby.get(position).username);
             }
         });
     }

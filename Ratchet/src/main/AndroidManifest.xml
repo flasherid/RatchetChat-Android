@@ -50,6 +50,10 @@
             android:name="com.scotttherobot.ratchet.NearbyUsersActivity"
             android:label="@string/title_activity_nearby_users" >
         </activity>
+        <activity
+            android:name="com.scotttherobot.ratchet.ProfileViewActivity"
+            android:label="@string/title_activity_profile_view" >
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

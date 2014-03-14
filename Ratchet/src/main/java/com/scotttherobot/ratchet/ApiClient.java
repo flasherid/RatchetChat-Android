@@ -36,7 +36,7 @@ public class ApiClient {
     public static String globalUsername;
     private static String globalPassword;
 
-    public static Context appContext;
+    public static Context appContext = null;
 
     public static ImageLoaderConfiguration imageLoaderConfig;
 
@@ -112,6 +112,10 @@ public class ApiClient {
 
 
     public static void setContext(Context c) {
+        if (appContext != null) {
+            ImageLoader.getInstance().destroy();
+        }
+
         appContext = c;
         imageLoaderConfig = new ImageLoaderConfiguration.Builder(appContext).build();
         /*
@@ -121,6 +125,7 @@ public class ApiClient {
                 .showImageOnFail(R.drawable.kim)
                 .build();
                 */
+
         ImageLoader.getInstance().init(imageLoaderConfig);
     }
 
