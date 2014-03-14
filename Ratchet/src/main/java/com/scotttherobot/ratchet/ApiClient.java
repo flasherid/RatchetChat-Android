@@ -10,6 +10,9 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.loopj.android.http.*;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,6 +29,7 @@ public class ApiClient {
     private static loginHandler loginDone;
 
     private static final String BASE_URL = "http://chat.twerkwithfriends.com/0.1/";
+    private static final String UNVERSIONED_URL = "http://chat.twerkwithfriends.com/";
     private static String SESSION = null;
 
     public static String userId;
@@ -34,7 +38,13 @@ public class ApiClient {
 
     public static Context appContext;
 
+    public static ImageLoaderConfiguration imageLoaderConfig;
+
     private static AsyncHttpClient client = new AsyncHttpClient();
+
+    public static String getUnversionedUrl() {
+        return UNVERSIONED_URL;
+    }
 
     public static void loginWithSavedCredentials(loginHandler isDone) {
         //getCredentials();
@@ -99,8 +109,19 @@ public class ApiClient {
         return BASE_URL + relativeUrl;
     }
 
+
+
     public static void setContext(Context c) {
         appContext = c;
+        imageLoaderConfig = new ImageLoaderConfiguration.Builder(appContext).build();
+        /*
+        DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.kim)
+                .showImageOnLoading(R.drawable.chat)
+                .showImageOnFail(R.drawable.kim)
+                .build();
+                */
+        ImageLoader.getInstance().init(imageLoaderConfig);
     }
 
     public static void saveCredentials () {

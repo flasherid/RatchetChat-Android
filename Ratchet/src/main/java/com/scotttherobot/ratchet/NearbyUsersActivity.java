@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,85 +14,60 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-public class ThreadListActivity extends Activity {
+public class NearbyUsersActivity extends Activity {
 
-    ArrayList<Thread> threadList = new ArrayList<Thread>();
-    ListView list;
+    ArrayList<User> nearby = new ArrayList<User>();
+    GridView userGrid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_thread_list);
+        setContentView(R.layout.activity_nearby_users);
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
-        setTitle("Messages");
-        threadList = new ArrayList<Thread>();
 
-        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
+        setTitle("Nearby");
 
         ApiClient.setContext(getApplicationContext());
-        getThreadData();
+
+        getNearbyUsers();
+
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        // persistData();
-        unregisterReceiver(broadcastReceiver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        registerReceiver(broadcastReceiver, new IntentFilter(GcmIntentService.BROADCAST_ACTION));
-        getThreadData();
-    }
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.v("THREAD", "Received broadcast.");
-        }
-    };
-
-    /*
-    @Override
-    protected void onResume() {
-       // getThreadData();
-    }
-    */
-
-    public void getThreadData() {
+    private void getNearbyUsers() {
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setTitle("Getting threads.");
         progress.setMessage("Hold, please.");
         progress.show();
 
-        ApiClient.get("threads/", null, new JsonHttpResponseHandler() {
+        RequestParams rp = new RequestParams();
+        rp.add("latitude", "35.274658");
+        rp.add("longitude", "-120.662781");
+
+        ApiClient.get("location/nearby", rp, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONObject response) {
                 //Log.d("LIST", "Response: " + response.toString());
                 try {
-                    JSONArray tests = response.getJSONArray("threads");
-                    threadList.clear();
-                    threadList.addAll(Thread.fromJson(tests));
+                    JSONArray users = response.getJSONArray("nearby");
+                    nearby.clear();
+                    nearby.addAll(User.fromJson(users));
                     addDataToList();
                     progress.dismiss();
                 } catch (Exception e) {
@@ -107,28 +79,31 @@ public class ThreadListActivity extends Activity {
 
     public void addDataToList() {
         // Assign the data to the list.
-        list = (ListView)findViewById(R.id.threadList);
-        ThreadsAdapter ta = new ThreadsAdapter(this, threadList);
-        ListAdapter adapter = ta;
-        list.setAdapter(adapter);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        userGrid = (GridView)findViewById(R.id.userGrid);
+        UsersAdapter ua = new UsersAdapter(this, nearby);
+        //ListAdapter adapter = ua;
+        userGrid.setAdapter(ua);
+        userGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                /*
                 Intent messageThreadIntent = new Intent(getApplicationContext(), MessageThreadActivity.class);
                 messageThreadIntent.putExtra("threadid", threadList.get(+position).id);
                 messageThreadIntent.putExtra("threadname", threadList.get(+position).name);
                 //messageThreadIntent.putExtra("autologin", "");
                 //messageThreadIntent.putExtra("thread", threadList.get(+position));
                 startActivity(messageThreadIntent);
+                */
             }
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.thread_list, menu);
+        getMenuInflater().inflate(R.menu.nearby_users, menu);
         return true;
     }
 
@@ -139,19 +114,7 @@ public class ThreadListActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.refreshButton:
-                getThreadData();
-                return true;
-            case R.id.logoutButton:
-                ApiClient.clearCredentials();
-                finish();
-                return true;
-            case R.id.newThreadButton:
-                Intent i = new Intent(getApplicationContext(), CreateThreadActivity.class);
-                startActivity(i);
-                return true;
-            case R.id.nearbyUsers:
-                Intent n = new Intent(getApplicationContext(), NearbyUsersActivity.class);
-                startActivity(n);
+                getNearbyUsers();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -169,7 +132,7 @@ public class ThreadListActivity extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_thread_list, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_nearby_users, container, false);
             return rootView;
         }
     }

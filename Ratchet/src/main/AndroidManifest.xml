@@ -46,6 +46,10 @@
             android:name="com.scotttherobot.ratchet.UserRegistrationActivity"
             android:label="@string/title_activity_user_registration" >
         </activity>
+        <activity
+            android:name="com.scotttherobot.ratchet.NearbyUsersActivity"
+            android:label="@string/title_activity_nearby_users" >
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

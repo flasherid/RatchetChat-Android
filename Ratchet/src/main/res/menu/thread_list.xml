@@ -14,4 +14,8 @@
         android:title="Log Out"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/nearbyUsers"
+        android:title="Nearby Users"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>

@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Ratchet.iml" filepath="$PROJECT_DIR$/Ratchet.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Ratchet.iml" filepath="$PROJECT_DIR$/Ratchet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Ratchet/Ratchet.iml" filepath="$PROJECT_DIR$/Ratchet/Ratchet.iml" />
       <module fileurl="file://$PROJECT_DIR$/Ratchet/Ratchet-Ratchet.iml" filepath="$PROJECT_DIR$/Ratchet/Ratchet-Ratchet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ratchet.iml" filepath="$PROJECT_DIR$/ratchet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ratchet.iml" filepath="$PROJECT_DIR$/ratchet.iml" />
     </modules>
   </component>
 </project>
