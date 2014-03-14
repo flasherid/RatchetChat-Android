@@ -55,13 +55,20 @@ public class LoginActivity extends Activity {
         ApiClient.setContext(getApplicationContext());
         final Resources res = getResources();
         if (ApiClient.getCredentials()) {
+
+            final ProgressDialog progress = new ProgressDialog(this);
+            progress.setTitle("Logging In");
+            progress.setMessage("It looks like you've been here before. Hold on while we log you in.");
+            progress.show();
             ApiClient.loginWithSavedCredentials(new ApiClient.loginHandler() {
                 @Override
                 public void onLogin(JSONObject response) {
+                    progress.dismiss();
                     gotoThreads();
                 }
                 @Override
                 public void onFailure(JSONObject response) {
+                    progress.dismiss();
                     showAlert(res.getString(R.string.loginFailed), res.getString(R.string.loginFailedMessage));
                 }
             });
@@ -103,13 +110,11 @@ public class LoginActivity extends Activity {
         ApiClient.login(username, password, new ApiClient.loginHandler() {
             @Override
             public void onLogin(JSONObject response) {
-                //((TextView)findViewById(R.id.sessionLabel)).setText("Login Successful");
+                progress.dismiss();
                 try {
-                    progress.dismiss();
                     registerForPushNotifications();
                     gotoThreads();
                 } catch (Exception e) {
-
                 }
             }
             @Override

@@ -117,14 +117,17 @@ public class ApiClient {
         }
 
         appContext = c;
-        imageLoaderConfig = new ImageLoaderConfiguration.Builder(appContext).build();
-        /*
+
         DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.kim)
                 .showImageOnLoading(R.drawable.chat)
                 .showImageOnFail(R.drawable.kim)
+                .cacheInMemory(true)
+                .cacheOnDisc(true)
                 .build();
-                */
+        imageLoaderConfig = new ImageLoaderConfiguration.Builder(appContext)
+                .defaultDisplayImageOptions(displayOptions)
+                .build();
 
         ImageLoader.getInstance().init(imageLoaderConfig);
     }

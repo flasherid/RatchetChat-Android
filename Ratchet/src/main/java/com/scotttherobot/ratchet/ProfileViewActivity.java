@@ -14,9 +14,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class ProfileViewActivity extends Activity {
+
+    User thisUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,32 +32,6 @@ public class ProfileViewActivity extends Activity {
                     .commit();
         }
 
-        ApiClient.setContext(getApplicationContext());
-
-        Intent i = getIntent();
-        User thisUser = (User) i.getExtras().get("user");
-        showUser(thisUser);
-    }
-
-    public void showUser(User thisUser) {
-        String imageUrl;
-        if (thisUser.avatarSrc.toLowerCase().contains("http://")
-                || thisUser.avatarSrc.toLowerCase().contains("https://")) {
-            imageUrl = thisUser.avatarSrc;
-        } else {
-            imageUrl = ApiClient.getUnversionedUrl() + thisUser.avatarSrc;
-        }
-
-
-
-        TextView username = (TextView)findViewById(R.id.userGrid);
-        TextView distance = (TextView)findViewById(R.id.userDistance);
-        ImageView image = (ImageView)findViewById(R.id.userImage);
-
-        username.setText("test");
-        //username.setText(thisUser.username);
-        //distance.setText(thisUser.distance + " mi.");
-        //ImageLoader.getInstance().displayImage(imageUrl, image);
     }
 
     @Override
@@ -72,6 +49,7 @@ public class ProfileViewActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            //showUser();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -82,6 +60,8 @@ public class ProfileViewActivity extends Activity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        public User thisUser;
+
         public PlaceholderFragment() {
         }
 
@@ -89,8 +69,30 @@ public class ProfileViewActivity extends Activity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_profile_view, container, false);
+
+            ApiClient.setContext(getActivity().getApplicationContext());
+
+            Intent i = getActivity().getIntent();
+            thisUser = (User)i.getExtras().get("user");
+
+            String imageUrl;
+            if (thisUser.avatarSrc.toLowerCase().contains("http://")
+                    || thisUser.avatarSrc.toLowerCase().contains("https://")) {
+                imageUrl = thisUser.avatarSrc;
+            } else {
+                imageUrl = ApiClient.getUnversionedUrl() + thisUser.avatarSrc;
+            }
+            TextView username = (TextView)rootView.findViewById(R.id.userUsername);
+            TextView distance = (TextView)rootView.findViewById(R.id.distanceFromMe);
+            ImageView image = (ImageView)rootView.findViewById(R.id.userImage);
+
+            username.setText(thisUser.username);
+            distance.setText(thisUser.distance + " mi.");
+            ImageLoader.getInstance().displayImage(imageUrl, image);
+
             return rootView;
         }
+
     }
 
     public void showAlert(String title, String message) {
