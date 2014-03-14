@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+
 import java.util.ArrayList;
 
 /**
@@ -20,6 +22,7 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         TextView body;
         ImageView leftImage;
         ImageView rightImage;
+        ImageView centerImage;
         TextView senderLabelLeft;
         TextView senderLabelRight;
     }
@@ -43,6 +46,7 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             viewHolder.rightImage = (ImageView) convertView.findViewById(R.id.rightImage);
             viewHolder.senderLabelLeft = (TextView) convertView.findViewById(R.id.senderLabelLeft);
             viewHolder.senderLabelRight = (TextView) convertView.findViewById(R.id.senderLabelRight);
+            viewHolder.centerImage = (ImageView) convertView.findViewById(R.id.middleImage);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -52,11 +56,26 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         viewHolder.rightImage.setImageResource(R.drawable.circle_mask);
         viewHolder.leftImage.setImageResource(R.drawable.circle_mask);
 
+        if (message.mediaSrc != null) {
+
+            String imageUrl;
+            if (message.mediaSrc.toLowerCase().contains("http://")
+                    || message.mediaSrc.toLowerCase().contains("https://")) {
+                imageUrl = message.mediaSrc;
+            } else {
+                imageUrl = ApiClient.getUnversionedUrl() + message.mediaSrc;
+            }
+            ImageLoader.getInstance().displayImage(imageUrl, viewHolder.centerImage);
+        } else {
+            viewHolder.centerImage.getLayoutParams().height = 0;
+        }
+
         if (ApiClient.userId.compareTo(message.userid) == 0) {
             viewHolder.rightImage.setBackgroundResource(R.drawable.chat);
             viewHolder.leftImage.getLayoutParams().width = 0;
             viewHolder.senderLabelLeft.getLayoutParams().width = 0;
             viewHolder.body.setGravity(Gravity.RIGHT);
+            //viewHol
         } else {
             viewHolder.leftImage.setBackgroundResource(R.drawable.chat);
             viewHolder.rightImage.getLayoutParams().width = 0;

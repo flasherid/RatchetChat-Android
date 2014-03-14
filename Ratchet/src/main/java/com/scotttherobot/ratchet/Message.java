@@ -19,6 +19,7 @@ public class Message implements Serializable {
     public String sent;
     public String userid;
     public String body;
+    public String mediaSrc;
     public int id;
 
     public Message(JSONObject object) {
@@ -29,6 +30,11 @@ public class Message implements Serializable {
             this.userid = object.getString("userid");
             this.body = object.getString("body");
             this.id = Integer.parseInt(object.getString("id"));
+            if (!object.isNull("src")) {
+                this.mediaSrc = object.getString("src");
+            } else {
+                this.mediaSrc = null;
+            }
         } catch (Exception e) {
             Log.e("MESSAGE", "There was an issue instantiating!");
         }
