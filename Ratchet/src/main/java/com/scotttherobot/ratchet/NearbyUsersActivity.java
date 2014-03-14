@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +35,12 @@ public class NearbyUsersActivity extends Activity {
     ArrayList<User> nearby = new ArrayList<User>();
     GridView userGrid;
 
+    LocationManager locationManager;
+    LocationListener locationListener;
+
+    Double latitude;
+    Double longitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +55,49 @@ public class NearbyUsersActivity extends Activity {
         setTitle("Nearby");
 
         ApiClient.setContext(getApplicationContext());
+        getLocationAndSave();
+    }
 
-        getNearbyUsers();
+    private void getLocationAndSave() {
+        final ProgressDialog progress = new ProgressDialog(this);
+        progress.setTitle("Getting your location.");
+        progress.setMessage("Looking for you...");
+        progress.show();
 
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+
+                RequestParams rp = new RequestParams();
+                rp.add("latitude", latitude.toString());
+                rp.add("longitude", "" + longitude.toString());
+
+                ApiClient.post("location/", rp, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(JSONObject response) {
+                        progress.dismiss();
+                        unsubscribeForLocation();
+                        getNearbyUsers();
+                    }
+                });
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    }
+
+    private void unsubscribeForLocation() {
+        locationManager.removeUpdates(locationListener);
     }
 
     private void getNearbyUsers() {
@@ -57,8 +107,8 @@ public class NearbyUsersActivity extends Activity {
         progress.show();
 
         RequestParams rp = new RequestParams();
-        rp.add("latitude", "35.274658");
-        rp.add("longitude", "-120.662781");
+        rp.add("latitude", latitude.toString());
+        rp.add("longitude", longitude.toString());
 
         ApiClient.get("location/nearby", rp, new JsonHttpResponseHandler() {
             @Override
@@ -113,7 +163,7 @@ public class NearbyUsersActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.refreshButton:
-                getNearbyUsers();
+                getLocationAndSave();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
