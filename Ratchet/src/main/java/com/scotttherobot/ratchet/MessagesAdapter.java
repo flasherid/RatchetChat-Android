@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -25,6 +26,8 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         ImageView centerImage;
         TextView senderLabelLeft;
         TextView senderLabelRight;
+        LinearLayout leftLayout;
+        LinearLayout rightLayout;
     }
 
     public MessagesAdapter(Context context, ArrayList<Message> messages) {
@@ -47,6 +50,8 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             viewHolder.senderLabelLeft = (TextView) convertView.findViewById(R.id.senderLabelLeft);
             viewHolder.senderLabelRight = (TextView) convertView.findViewById(R.id.senderLabelRight);
             viewHolder.centerImage = (ImageView) convertView.findViewById(R.id.middleImage);
+            viewHolder.leftLayout = (LinearLayout) convertView.findViewById(R.id.leftLayout);
+            viewHolder.rightLayout = (LinearLayout) convertView.findViewById(R.id.rightLayout);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -74,6 +79,7 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             viewHolder.rightImage.setBackgroundResource(R.drawable.chat);
             viewHolder.leftImage.getLayoutParams().width = 0;
             viewHolder.senderLabelLeft.getLayoutParams().width = 0;
+            viewHolder.leftLayout.getLayoutParams().width = 0;
             viewHolder.body.setGravity(Gravity.RIGHT);
             //viewHol
         } else {
@@ -82,6 +88,7 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             viewHolder.body.setGravity(Gravity.LEFT);
             viewHolder.senderLabelLeft.setText(message.username);
             viewHolder.senderLabelRight.getLayoutParams().width = 0;
+            viewHolder.rightLayout.getLayoutParams().width = 0;
         }
 
         return convertView;
