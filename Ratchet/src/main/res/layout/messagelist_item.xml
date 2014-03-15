@@ -12,10 +12,12 @@
     android:paddingRight="10dp" >
 
     <LinearLayout
+        android:id="@+id/leftLayout"
         android:orientation="vertical"
         android:layout_marginLeft="0dp"
         android:layout_width="75dp"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"  >
 
         <ImageView
             android:id="@+id/leftImage"
@@ -31,43 +33,39 @@
     </LinearLayout>
 
 
-    <!--TextView
-        android:id="@+id/messageBody"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:gravity="center_vertical"
-        android:textSize="15sp"
-        /> -->
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_weight="1"
         android:padding="5dp"
         android:gravity="center_vertical"
+        android:layout_gravity="bottom"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
 
         <ImageView
             android:id="@+id/middleImage"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="#BBFFAA"
+            android:adjustViewBounds="true"/>
         <TextView
             android:id="@+id/messageBody"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:textSize="15sp"
-            android:text="message" />
+            android:text="message"
+            android:background="#AAAAAA" />
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/rightLayout"
         android:orientation="vertical"
         android:layout_marginRight="0dp"
         android:layout_width="75dp"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom" >
 
         <ImageView
             android:id="@+id/rightImage"
