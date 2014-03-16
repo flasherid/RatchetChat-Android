@@ -76,6 +76,7 @@ public class ProfileViewActivity extends Activity {
             TextView username = (TextView)rootView.findViewById(R.id.userUsername);
             TextView distance = (TextView)rootView.findViewById(R.id.distanceFromMe);
             ImageView image = (ImageView)rootView.findViewById(R.id.userImage);
+            Log.e("PROFILE", "Accessing view elements");
 
             /*
             MenuItem editProfileButton = (MenuItem)rootView.findViewById(R.id.editProfile);
@@ -105,6 +106,14 @@ public class ProfileViewActivity extends Activity {
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             // Inflate the menu; this adds items to the action bar if it is present.
             inflater.inflate(R.menu.profile_view, menu);
+
+            // If the logged in user is looking at their own profile, show those
+            // edit menu buttons.
+            int loggedIn = Integer.parseInt(ApiClient.userId);
+            if (loggedIn == thisUser.id) {
+                menu.findItem(R.id.uploadImage).setVisible(true);
+                menu.findItem(R.id.editProfile).setVisible(true);
+            }
             super.onCreateOptionsMenu(menu, inflater);
         }
 
