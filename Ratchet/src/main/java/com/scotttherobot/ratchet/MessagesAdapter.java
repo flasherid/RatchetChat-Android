@@ -61,6 +61,14 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         viewHolder.rightImage.setImageResource(R.drawable.circle_mask);
         viewHolder.leftImage.setImageResource(R.drawable.circle_mask);
 
+        String avatarUrl;
+        if (message.avatarSrc.toLowerCase().contains("http://")
+                || message.avatarSrc.toLowerCase().contains("https://")) {
+            avatarUrl = message.avatarSrc;
+        } else {
+            avatarUrl = ApiClient.getUnversionedUrl() + message.avatarSrc;
+        }
+
         if (message.mediaSrc != null) {
 
             String imageUrl;
@@ -76,14 +84,24 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         }
 
         if (ApiClient.userId.compareTo(message.userid) == 0) {
-            viewHolder.rightImage.setBackgroundResource(R.drawable.chat);
+
+            if (message.avatarSrc == null) {
+                viewHolder.rightImage.setBackgroundResource(R.drawable.chat);
+            } else {
+                ImageLoader.getInstance().displayImage(avatarUrl, viewHolder.rightImage);
+            }
+
             viewHolder.leftImage.getLayoutParams().width = 0;
             viewHolder.senderLabelLeft.getLayoutParams().width = 0;
             viewHolder.leftLayout.getLayoutParams().width = 0;
             viewHolder.body.setGravity(Gravity.RIGHT);
             //viewHol
         } else {
-            viewHolder.leftImage.setBackgroundResource(R.drawable.chat);
+            if (message.avatarSrc == null) {
+                viewHolder.leftImage.setBackgroundResource(R.drawable.chat);
+            } else {
+                ImageLoader.getInstance().displayImage(avatarUrl, viewHolder.leftImage);
+            }
             viewHolder.rightImage.getLayoutParams().width = 0;
             viewHolder.body.setGravity(Gravity.LEFT);
             viewHolder.senderLabelLeft.setText(message.username);

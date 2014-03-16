@@ -6,8 +6,10 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,23 +38,11 @@ public class ProfileViewActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.profile_view, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            //showUser();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        //getMenuInflater().inflate(R.menu.thread_list, menu);
+        Log.e("PROFILE", "onCreateOptionsMenu Activity");
+        return true;
     }
 
     /**
@@ -68,6 +58,7 @@ public class ProfileViewActivity extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
+            setHasOptionsMenu(true);
             View rootView = inflater.inflate(R.layout.fragment_profile_view, container, false);
 
             ApiClient.setContext(getActivity().getApplicationContext());
@@ -86,11 +77,51 @@ public class ProfileViewActivity extends Activity {
             TextView distance = (TextView)rootView.findViewById(R.id.distanceFromMe);
             ImageView image = (ImageView)rootView.findViewById(R.id.userImage);
 
+            /*
+            MenuItem editProfileButton = (MenuItem)rootView.findViewById(R.id.editProfile);
+            MenuItem newImageButton = (MenuItem)rootView.findViewById(R.id.uploadImage);
+            // This user is NOT the logged in user. Hide the menu things.
+            int userid = Integer.parseInt(ApiClient.userId);
+            if (userid == thisUser.id) {
+                editProfileButton.setVisible(true);
+                newImageButton.setVisible(true);
+            }
+            */
+
             username.setText(thisUser.username);
-            distance.setText(thisUser.distance + " mi.");
+
+            if (thisUser.distance >= .5) {
+                distance.setText(thisUser.distance + " mi.");
+            } else {
+                distance.setText(Utils.milesToFeet(thisUser.distance) + " ft.");
+            }
+
             ImageLoader.getInstance().displayImage(imageUrl, image);
 
             return rootView;
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            inflater.inflate(R.menu.profile_view, menu);
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            // Handle action bar item clicks here. The action bar will
+            // automatically handle clicks on the Home/Up button, so long
+            // as you specify a parent activity in AndroidManifest.xml.
+
+            switch(item.getItemId()) {
+                case R.id.uploadImage:
+                    return true;
+                case R.id.editProfile:
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
         }
 
     }

@@ -1,9 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.scotttherobot.ratchet.ProfileViewActivity" >
+    tools:context="com.scotttherobot.ratchet.ProfileViewActivity"
+    android:id="@+id/profileMenu" >
     
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+    <item android:id="@+id/editProfile"
+        android:title="Edit Profile"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="never"
+        android:visible="false" />
+    <item android:id="@+id/uploadImage"
+        android:title="Change Image"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:visible="false" />
 </menu>
